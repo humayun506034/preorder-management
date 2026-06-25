@@ -433,7 +433,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-[#f3f3f3] px-3 py-6 text-neutral-900 sm:px-5 sm:py-10 lg:px-8 lg:py-14">
-      <div className="mx-auto flex w-full min-w-0 max-w-[min(950px,100%)] flex-col gap-4 sm:gap-6">
+      <div className="mx-auto flex w-full min-w-0 max-w-[min(1120px,100%)] flex-col gap-4 sm:gap-6">
         <div className="flex min-w-0 flex-col gap-3 border-t border-neutral-200 pt-5 sm:flex-row sm:items-center sm:justify-between sm:pt-6">
           <h1 className="min-w-0 text-2xl font-bold tracking-tight text-neutral-900">
             Preorders

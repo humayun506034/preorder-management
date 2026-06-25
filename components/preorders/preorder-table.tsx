@@ -142,7 +142,7 @@ export function PreorderTable({
 
   return (
     <div className="max-w-full overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]">
-      <table className="w-full min-w-[820px] table-fixed border-collapse text-left text-sm">
+      <table className="w-full min-w-[1040px] table-fixed border-collapse text-left text-sm">
         <thead className="bg-neutral-50 text-[13px] text-neutral-600">
           <tr>
             <th className="w-9 px-3 py-2.5 font-semibold">
@@ -152,15 +152,15 @@ export function PreorderTable({
                 onChange={onSelectAll}
               />
             </th>
-            <th className="w-[18%] px-3 py-2.5 font-semibold">Name</th>
-            <th className="w-[10%] px-3 py-2.5 font-semibold">Products</th>
-            <th className="w-[18%] px-3 py-2.5 font-semibold">
+            <th className="w-[180px] px-3 py-2.5 font-semibold">Name</th>
+            <th className="w-[90px] px-3 py-2.5 font-semibold">Products</th>
+            <th className="w-[170px] px-3 py-2.5 font-semibold">
               Preorder when
             </th>
-            <th className="w-[18%] px-3 py-2.5 font-semibold">Starts at</th>
-            <th className="w-[18%] px-3 py-2.5 font-semibold">Ends at</th>
-            <th className="w-[9%] px-3 py-2.5 font-semibold">Status</th>
-            <th className="w-[10%] px-3 py-2.5 font-semibold">Actions</th>
+            <th className="w-[190px] px-3 py-2.5 font-semibold">Starts at</th>
+            <th className="w-[190px] px-3 py-2.5 font-semibold">Ends at</th>
+            <th className="w-[90px] px-3 py-2.5 font-semibold">Status</th>
+            <th className="w-[100px] px-3 py-2.5 font-semibold">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-neutral-200 bg-white text-[13.5px] text-neutral-800">
@@ -185,8 +185,12 @@ export function PreorderTable({
                 </td>
                 <td className="px-3 py-2">{item.products}</td>
                 <td className="truncate px-3 py-2">{item.preorderWhen}</td>
-                <td className="truncate px-3 py-2">{formatDate(item.startsAt)}</td>
-                <td className="truncate px-3 py-2">{formatDate(item.endsAt)}</td>
+                <td className="whitespace-nowrap px-3 py-2">
+                  {formatDate(item.startsAt)}
+                </td>
+                <td className="whitespace-nowrap px-3 py-2">
+                  {formatDate(item.endsAt)}
+                </td>
                 <td className="px-3 py-2">
                   <StatusSwitch
                     isActive={item.isActive}

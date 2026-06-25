@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import { FormEvent, ReactNode, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { DateTimePicker } from "@/components/preorders/date-time-picker";
 import type { Preorder, PreorderPayload } from "@/types/preorder";
 
 type PreorderFormProps = {
@@ -69,6 +71,11 @@ export function PreorderForm({
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (!startsAt) {
+      toast.error("Start date is required.");
+      return;
+    }
 
     await onSubmit({
       name: name.trim(),
@@ -179,21 +186,19 @@ export function PreorderForm({
               title="Starts at"
               description="When the preorder window opens."
             >
-              <input
+              <DateTimePicker
                 required
-                type="datetime-local"
                 value={startsAt}
-                onChange={(event) => setStartsAt(event.target.value)}
-                className="h-10 w-full min-w-0 max-w-[420px] rounded-lg border border-neutral-300 px-3 text-sm outline-none transition focus:border-neutral-500"
+                onChange={setStartsAt}
+                placeholder="Select start date"
               />
             </FormRow>
 
             <FormRow title="Ends at" description="Leave empty for no end date.">
-              <input
-                type="datetime-local"
+              <DateTimePicker
                 value={endsAt}
-                onChange={(event) => setEndsAt(event.target.value)}
-                className="h-10 w-full min-w-0 max-w-[420px] rounded-lg border border-neutral-300 px-3 text-sm outline-none transition focus:border-neutral-500"
+                onChange={setEndsAt}
+                placeholder="Select end date"
               />
             </FormRow>
 
