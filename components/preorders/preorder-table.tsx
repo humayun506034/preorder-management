@@ -3,8 +3,13 @@ import type { Preorder } from "@/types/preorder";
 type PreorderTableProps = {
   preorders: Preorder[];
   isLoading: boolean;
+  selectedIds: string[];
   onEdit: (preorder: Preorder) => void;
+  onDelete: (preorder: Preorder) => void;
+  onSelectAll: (checked: boolean) => void;
+  onSelectOne: (id: string, checked: boolean) => void;
   onStatusToggle: (preorder: Preorder) => void;
+  deletingId: string | null;
   updatingStatusId: string | null;
 };
 
@@ -22,9 +27,23 @@ const formatDate = (value: string | null) => {
   }).format(new Date(value));
 };
 
-function CheckboxIcon() {
+function RowCheckbox({
+  checked,
+  label,
+  onChange,
+}: {
+  checked: boolean;
+  label: string;
+  onChange: (checked: boolean) => void;
+}) {
   return (
-    <span className="block h-4 w-4 rounded border border-neutral-400 bg-white" />
+    <input
+      type="checkbox"
+      aria-label={label}
+      checked={checked}
+      onChange={(event) => onChange(event.target.checked)}
+      className="h-4 w-4 rounded border-neutral-400 accent-neutral-900"
+    />
   );
 }
 
@@ -94,17 +113,30 @@ function StatusSwitch({
 export function PreorderTable({
   preorders,
   isLoading,
+  selectedIds,
   onEdit,
+  onDelete,
+  onSelectAll,
+  onSelectOne,
   onStatusToggle,
+  deletingId,
   updatingStatusId,
 }: PreorderTableProps) {
+  const allRowsSelected =
+    preorders.length > 0 &&
+    preorders.every((preorder) => selectedIds.includes(preorder.id));
+
   return (
     <div className="max-w-full overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]">
       <table className="w-full min-w-[920px] border-collapse text-left text-sm">
         <thead className="bg-neutral-50 text-[13px] text-neutral-600">
           <tr>
             <th className="w-9 px-3 py-2.5 font-semibold">
-              <CheckboxIcon />
+              <RowCheckbox
+                checked={allRowsSelected}
+                label="Select all preorders on this page"
+                onChange={onSelectAll}
+              />
             </th>
             <th className="px-3 py-2.5 font-semibold">Name</th>
             <th className="px-3 py-2.5 font-semibold">Products</th>
@@ -126,7 +158,11 @@ export function PreorderTable({
             preorders.map((item) => (
               <tr key={item.id} className="h-[43px] hover:bg-neutral-50">
                 <td className="px-3 py-2">
-                  <CheckboxIcon />
+                  <RowCheckbox
+                    checked={selectedIds.includes(item.id)}
+                    label={`Select ${item.name}`}
+                    onChange={(checked) => onSelectOne(item.id, checked)}
+                  />
                 </td>
                 <td className="px-3 py-2 font-bold text-neutral-800">
                   {item.name}
@@ -155,7 +191,9 @@ export function PreorderTable({
                     <button
                       type="button"
                       aria-label={`Delete ${item.name}`}
-                      className="grid h-8 w-8 place-items-center rounded-lg border border-neutral-200 bg-white text-neutral-700 transition hover:bg-neutral-50"
+                      disabled={deletingId === item.id}
+                      onClick={() => onDelete(item)}
+                      className="grid h-8 w-8 place-items-center rounded-lg border border-neutral-200 bg-white text-neutral-700 transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <DeleteIcon />
                     </button>

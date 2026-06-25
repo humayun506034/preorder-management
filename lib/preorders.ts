@@ -50,3 +50,13 @@ export const updatePreorder = async (id: string, payload: PreorderPayload) => {
 
   return response.data;
 };
+
+export const deletePreorder = async (id: string) => {
+  const response = await apiClient.delete<{
+    success: boolean;
+    statusCode: number;
+    message: string;
+  }>(`/preorder/${id}`);
+
+  return response.data;
+};

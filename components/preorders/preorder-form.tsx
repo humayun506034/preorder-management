@@ -6,6 +6,7 @@ import type { Preorder, PreorderPayload } from "@/types/preorder";
 type PreorderFormProps = {
   preorder?: Preorder;
   isSubmitting: boolean;
+  errorMessage?: string | null;
   onCancel: () => void;
   onSubmit: (payload: PreorderPayload) => Promise<void>;
 };
@@ -38,6 +39,7 @@ const toIsoOrNull = (value: string) => {
 export function PreorderForm({
   preorder,
   isSubmitting,
+  errorMessage,
   onCancel,
   onSubmit,
 }: PreorderFormProps) {
@@ -106,6 +108,12 @@ export function PreorderForm({
             </button>
           </div>
         </div>
+
+        {errorMessage ? (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            {errorMessage}
+          </div>
+        ) : null}
 
         <section className="min-w-0 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
           <div className="border-b border-neutral-200 px-4 py-4 sm:px-6 sm:py-5">

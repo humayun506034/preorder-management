@@ -8,7 +8,12 @@ import { PreorderForm } from "@/components/preorders/preorder-form";
 import { PreorderPagination } from "@/components/preorders/preorder-pagination";
 import { PreorderTable } from "@/components/preorders/preorder-table";
 import { defaultFilters } from "@/lib/preorder-options";
-import { createPreorder, getPreorders, updatePreorder } from "@/lib/preorders";
+import {
+  createPreorder,
+  deletePreorder,
+  getPreorders,
+  updatePreorder,
+} from "@/lib/preorders";
 import type {
   Preorder,
   PreorderMeta,
@@ -86,11 +91,14 @@ export default function Home() {
   const [page, setPage] = useState(defaultFilters.page);
   const [limit] = useState(defaultFilters.limit);
   const [preorders, setPreorders] = useState<Preorder[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [meta, setMeta] = useState<PreorderMeta | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedPreorder, setSelectedPreorder] = useState<Preorder | null>(
     null,
@@ -121,6 +129,7 @@ export default function Home() {
         }
 
         setPreorders(result.data);
+        setSelectedIds([]);
         setMeta(result.meta);
       } catch (unknownError) {
         if (!shouldUpdate) {
@@ -168,19 +177,49 @@ export default function Home() {
     };
   }, [loadPreorders]);
 
+  useEffect(() => {
+    const currentPageIds = new Set(
+      preorders.map((currentPreorder) => currentPreorder.id),
+    );
+    const timeoutId = window.setTimeout(() => {
+      setSelectedIds((currentIds) =>
+        currentIds.filter((currentId) => currentPageIds.has(currentId)),
+      );
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [preorders]);
+
   const handleStatusChange = (value: PreorderStatusFilter) => {
     setStatus(value);
     setPage(1);
+    setSelectedIds([]);
   };
 
   const handleSortByChange = (value: PreorderSortByFilter) => {
     setSortBy(value);
     setPage(1);
+    setSelectedIds([]);
   };
 
   const handleSortOrderChange = (value: SortOrderFilter) => {
     setSortOrder(value);
     setPage(1);
+    setSelectedIds([]);
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    setSelectedIds(checked ? preorders.map((preorder) => preorder.id) : []);
+  };
+
+  const handleSelectOne = (id: string, checked: boolean) => {
+    setSelectedIds((currentIds) =>
+      checked
+        ? Array.from(new Set([...currentIds, id]))
+        : currentIds.filter((currentId) => currentId !== id),
+    );
   };
 
   const handleCreateClick = () => {
@@ -199,6 +238,7 @@ export default function Home() {
     try {
       setUpdatingStatusId(preorder.id);
       setError(null);
+      setFeedback(null);
 
       const result = await updatePreorder(preorder.id, {
         name: preorder.name,
@@ -235,6 +275,8 @@ export default function Home() {
           return nextPreorders;
         });
       }
+
+      setFeedback("Preorder status updated.");
     } catch (unknownError) {
       const message = axios.isAxiosError(unknownError)
         ? unknownError.response?.data?.message ??
@@ -247,8 +289,45 @@ export default function Home() {
     }
   };
 
+  const handleDeleteClick = async (preorder: Preorder) => {
+    try {
+      setDeletingId(preorder.id);
+      setError(null);
+      setFeedback(null);
+
+      await deletePreorder(preorder.id);
+
+      if (meta?.hasNextPage) {
+        await syncCurrentPage();
+      } else if (preorders.length === 1 && page > 1) {
+        setPage((currentPage) => currentPage - 1);
+      } else {
+        setPreorders((currentPreorders) =>
+          currentPreorders.filter(
+            (currentPreorder) => currentPreorder.id !== preorder.id,
+          ),
+        );
+        setSelectedIds((currentIds) =>
+          currentIds.filter((currentId) => currentId !== preorder.id),
+        );
+        setMeta(decrementMeta);
+      }
+
+      setFeedback("Preorder deleted.");
+    } catch (unknownError) {
+      const message = axios.isAxiosError(unknownError)
+        ? unknownError.response?.data?.message ?? "Failed to delete preorder."
+        : "Failed to delete preorder.";
+
+      setError(message);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const handleFormCancel = () => {
     setSelectedPreorder(null);
+    setError(null);
     setViewMode("list");
   };
 
@@ -256,6 +335,7 @@ export default function Home() {
     try {
       setIsSubmitting(true);
       setError(null);
+      setFeedback(null);
 
       if (viewMode === "edit" && selectedPreorder) {
         const result = await updatePreorder(selectedPreorder.id, payload);
@@ -292,6 +372,8 @@ export default function Home() {
             return nextPreorders;
           });
         }
+
+        setFeedback("Preorder updated.");
       } else {
         const result = await createPreorder(payload);
 
@@ -302,6 +384,8 @@ export default function Home() {
           ].slice(0, limit));
           setMeta(incrementMeta);
         }
+
+        setFeedback("Preorder created.");
       }
 
       setSelectedPreorder(null);
@@ -322,6 +406,7 @@ export default function Home() {
       <PreorderForm
         preorder={selectedPreorder ?? undefined}
         isSubmitting={isSubmitting}
+        errorMessage={error}
         onCancel={handleFormCancel}
         onSubmit={handleFormSubmit}
       />
@@ -351,6 +436,12 @@ export default function Home() {
           </div>
         ) : null}
 
+        {feedback ? (
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+            {feedback}
+          </div>
+        ) : null}
+
         <section className="min-w-0 overflow-hidden rounded-xl border border-neutral-300 bg-white shadow-sm">
           <PreorderFilters
             status={status}
@@ -363,8 +454,13 @@ export default function Home() {
           <PreorderTable
             preorders={preorders}
             isLoading={isLoading}
+            selectedIds={selectedIds}
             onEdit={handleEditClick}
+            onDelete={handleDeleteClick}
+            onSelectAll={handleSelectAll}
+            onSelectOne={handleSelectOne}
             onStatusToggle={handleStatusToggle}
+            deletingId={deletingId}
             updatingStatusId={updatingStatusId}
           />
           <PreorderPagination meta={meta} onPageChange={setPage} />
