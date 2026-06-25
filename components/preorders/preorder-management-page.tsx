@@ -3,6 +3,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { ConfirmDeleteModal } from "@/components/preorders/confirm-delete-modal";
 import { PreorderFilters } from "@/components/preorders/preorder-filters";
@@ -26,6 +27,12 @@ import type {
 } from "@/types/preorder";
 
 type ViewMode = "list" | "create" | "edit";
+
+const buttonMotion = {
+  whileHover: { scale: 1.03 },
+  whileTap: { scale: 0.96 },
+  transition: { type: "spring", stiffness: 500, damping: 30 },
+} as const;
 
 const matchesStatusFilter = (
   preorder: Preorder,
@@ -432,13 +439,14 @@ export default function Home() {
             Preorders
           </h1>
 
-          <button
+          <motion.button
             type="button"
             onClick={handleCreateClick}
+            {...buttonMotion}
             className="h-8 w-fit shrink-0 rounded-lg border border-neutral-950 bg-neutral-900 px-4 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] transition hover:bg-neutral-800"
           >
             Create Preorder
-          </button>
+          </motion.button>
         </div>
 
         <section className="min-w-0 overflow-hidden rounded-xl border border-neutral-300 bg-white shadow-sm">

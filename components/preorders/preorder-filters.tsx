@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useState } from "react";
 import type {
   PreorderSortBy,
@@ -22,6 +23,12 @@ type PreorderFiltersProps = {
   onSortByChange: (value: PreorderSortByFilter) => void;
   onSortOrderChange: (value: SortOrderFilter) => void;
 };
+
+const buttonMotion = {
+  whileHover: { scale: 1.03 },
+  whileTap: { scale: 0.96 },
+  transition: { type: "spring", stiffness: 500, damping: 30 },
+} as const;
 
 function SortIcon() {
   return (
@@ -80,10 +87,11 @@ export function PreorderFilters({
     <div className="relative flex min-w-0 items-center justify-between gap-2 border-b border-neutral-200 bg-white px-2 py-2 sm:h-12 sm:px-3 sm:py-0">
       <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:none] sm:gap-2 [&::-webkit-scrollbar]:hidden">
         {statusOptions.map((option) => (
-          <button
+          <motion.button
             key={option.value}
             type="button"
             onClick={() => onStatusChange(option.value)}
+            {...buttonMotion}
             className={`h-8 shrink-0 rounded-lg px-3 text-sm font-semibold leading-none transition sm:px-4 ${
               status === option.value
                 ? "bg-neutral-100 text-neutral-950"
@@ -91,20 +99,21 @@ export function PreorderFilters({
             }`}
           >
             {option.label}
-          </button>
+          </motion.button>
         ))}
       </div>
 
       <div className="relative shrink-0">
-        <button
+        <motion.button
           type="button"
           aria-label="Sort preorders"
           aria-expanded={isSortOpen}
           onClick={() => setIsSortOpen((current) => !current)}
+          {...buttonMotion}
           className="grid h-8 w-8 place-items-center rounded-lg border border-neutral-200 bg-white text-neutral-700 shadow-sm transition hover:bg-neutral-50"
         >
           <SortIcon />
-        </button>
+        </motion.button>
 
         {isSortOpen ? (
           <div className="absolute right-0 top-10 z-20 w-44 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-neutral-200 bg-white py-2 text-sm text-neutral-700 shadow-lg">
@@ -113,10 +122,11 @@ export function PreorderFilters({
               {sortByOptions
                 .filter(hasSortByValue)
                 .map((option) => (
-                  <button
+                  <motion.button
                     key={option.value}
                     type="button"
                     onClick={() => onSortByChange(option.value)}
+                    {...buttonMotion}
                     className="flex h-8 w-full items-center gap-2 rounded-md px-1.5 text-left transition hover:bg-neutral-100"
                   >
                     <span
@@ -127,7 +137,7 @@ export function PreorderFilters({
                       }`}
                     />
                     {option.label}
-                  </button>
+                  </motion.button>
                 ))}
             </div>
 
@@ -135,10 +145,11 @@ export function PreorderFilters({
               {sortOrderOptions
                 .filter(hasSortOrderValue)
                 .map((option) => (
-                  <button
+                  <motion.button
                     key={option.value}
                     type="button"
                     onClick={() => onSortOrderChange(option.value)}
+                    {...buttonMotion}
                     className={`flex h-8 w-full items-center gap-2 rounded-md px-2 text-left font-semibold transition ${
                       sortOrder === option.value
                         ? "bg-neutral-100 text-neutral-950"
@@ -147,7 +158,7 @@ export function PreorderFilters({
                   >
                     <OrderIcon direction={option.value} />
                     {option.label}
-                  </button>
+                  </motion.button>
                 ))}
             </div>
           </div>

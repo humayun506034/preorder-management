@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import type { Preorder } from "@/types/preorder";
 
 type PreorderTableProps = {
@@ -12,6 +13,18 @@ type PreorderTableProps = {
   deletingId: string | null;
   updatingStatusId: string | null;
 };
+
+const buttonMotion = {
+  whileHover: { scale: 1.04 },
+  whileTap: { scale: 0.96 },
+  transition: { duration: 0.12, ease: "easeOut" },
+} as const;
+
+const switchMotion = {
+  whileHover: { scale: 1.05 },
+  whileTap: { scale: 0.95 },
+  transition: { duration: 0.12, ease: "easeOut" },
+} as const;
 
 const formatDate = (value: string | null) => {
   if (!value) {
@@ -91,22 +104,23 @@ function StatusSwitch({
   onToggle: () => void;
 }) {
   return (
-    <button
+    <motion.button
       type="button"
       aria-label={isActive ? "Deactivate preorder" : "Activate preorder"}
       aria-pressed={isActive}
       disabled={isUpdating}
       onClick={onToggle}
-      className={`inline-flex h-5 w-8 items-center rounded-md p-1 transition disabled:cursor-not-allowed disabled:opacity-60 ${
+      {...switchMotion}
+      className={`inline-flex h-5 w-8 cursor-pointer items-center rounded-md p-1 transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
         isActive ? "bg-neutral-900" : "bg-neutral-200"
       }`}
     >
       <span
-        className={`h-3 w-3 rounded-sm bg-white transition ${
+        className={`h-3 w-3 rounded-sm bg-white transition-transform duration-150 ease-out will-change-transform ${
           isActive ? "translate-x-3" : "translate-x-0"
         }`}
       />
-    </button>
+    </motion.button>
   );
 }
 
@@ -182,23 +196,25 @@ export function PreorderTable({
                 </td>
                 <td className="px-3 py-2">
                   <div className="flex items-center gap-1.5">
-                    <button
+                    <motion.button
                       type="button"
                       aria-label={`Edit ${item.name}`}
                       onClick={() => onEdit(item)}
-                      className="grid h-8 w-8 place-items-center rounded-lg border border-neutral-200 bg-white text-neutral-700 transition hover:bg-neutral-50"
+                      {...buttonMotion}
+                      className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg border border-neutral-200 bg-white text-neutral-700 shadow-sm transition-colors hover:border-neutral-300 hover:bg-neutral-100 hover:text-neutral-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900"
                     >
                       <EditIcon />
-                    </button>
-                    <button
+                    </motion.button>
+                    <motion.button
                       type="button"
                       aria-label={`Delete ${item.name}`}
                       disabled={deletingId === item.id}
                       onClick={() => onDelete(item)}
-                      className="grid h-8 w-8 place-items-center rounded-lg border border-neutral-200 bg-white text-neutral-700 transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      {...buttonMotion}
+                      className="grid h-8 w-8 cursor-pointer place-items-center rounded-lg border border-neutral-200 bg-white text-neutral-700 shadow-sm transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <DeleteIcon />
-                    </button>
+                    </motion.button>
                   </div>
                 </td>
               </tr>

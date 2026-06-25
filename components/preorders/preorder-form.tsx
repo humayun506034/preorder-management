@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { FormEvent, ReactNode, useMemo, useState } from "react";
 import type { Preorder, PreorderPayload } from "@/types/preorder";
 
@@ -15,6 +16,12 @@ const preorderWhenOptions = [
   "out-of-stock",
   "before-eid",
 ];
+
+const buttonMotion = {
+  whileHover: { scale: 1.03 },
+  whileTap: { scale: 0.96 },
+  transition: { type: "spring", stiffness: 500, damping: 30 },
+} as const;
 
 const toDateTimeInputValue = (value?: string | null) => {
   if (!value) {
@@ -80,30 +87,33 @@ export function PreorderForm({
         className="mx-auto flex w-full min-w-0 max-w-[min(912px,100%)] flex-col gap-5 sm:gap-8"
       >
         <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <button
+          <motion.button
             type="button"
             onClick={onCancel}
+            {...buttonMotion}
             className="flex h-10 w-fit items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 text-sm font-bold text-neutral-900 shadow-sm transition hover:bg-neutral-50"
           >
             <span aria-hidden="true">&lt;</span>
             Back
-          </button>
+          </motion.button>
 
           <div className="grid grid-cols-1 gap-3 min-[380px]:grid-cols-2 sm:flex sm:items-center">
-            <button
+            <motion.button
               type="button"
               onClick={onCancel}
+              {...buttonMotion}
               className="h-10 rounded-lg border border-neutral-200 bg-white px-4 text-sm font-bold text-neutral-900 transition hover:bg-neutral-50 sm:px-5"
             >
               Cancel
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               type="submit"
               disabled={isSubmitting}
+              {...buttonMotion}
               className="h-10 rounded-lg bg-neutral-900 px-4 text-sm font-bold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60 sm:px-6"
             >
               {isSubmitting ? "Saving..." : "Save changes"}
-            </button>
+            </motion.button>
           </div>
         </div>
 
@@ -192,10 +202,11 @@ export function PreorderForm({
               description="Active preorders are visible to customers."
             >
               <label className="flex items-center gap-3 text-sm font-medium text-slate-600">
-                <button
+                <motion.button
                   type="button"
                   aria-pressed={isActive}
                   onClick={() => setIsActive((current) => !current)}
+                  {...buttonMotion}
                   className={`inline-flex h-7 w-11 items-center rounded-lg p-1 transition ${
                     isActive ? "bg-neutral-900" : "bg-neutral-200"
                   }`}
@@ -205,27 +216,29 @@ export function PreorderForm({
                       isActive ? "translate-x-4" : "translate-x-0"
                     }`}
                   />
-                </button>
+                </motion.button>
                 Active
               </label>
             </FormRow>
           </div>
 
           <div className="grid grid-cols-1 gap-3 border-t border-neutral-200 bg-neutral-50 px-4 py-4 min-[380px]:grid-cols-2 sm:flex sm:justify-end sm:px-6">
-            <button
+            <motion.button
               type="button"
               onClick={onCancel}
+              {...buttonMotion}
               className="h-10 rounded-lg border border-neutral-200 bg-white px-4 text-sm font-bold text-neutral-900 transition hover:bg-neutral-50 sm:px-5"
             >
               Cancel
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               type="submit"
               disabled={isSubmitting}
+              {...buttonMotion}
               className="h-10 rounded-lg bg-neutral-900 px-4 text-sm font-bold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60 sm:px-6"
             >
               {isSubmitting ? "Saving..." : "Save changes"}
-            </button>
+            </motion.button>
           </div>
         </section>
       </form>

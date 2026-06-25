@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "framer-motion";
 import type { Preorder } from "@/types/preorder";
 
 type ConfirmDeleteModalProps = {
@@ -6,6 +9,12 @@ type ConfirmDeleteModalProps = {
   onCancel: () => void;
   onConfirm: () => void;
 };
+
+const buttonMotion = {
+  whileHover: { scale: 1.03 },
+  whileTap: { scale: 0.96 },
+  transition: { type: "spring", stiffness: 500, damping: 30 },
+} as const;
 
 export function ConfirmDeleteModal({
   preorder,
@@ -28,22 +37,24 @@ export function ConfirmDeleteModal({
         </p>
 
         <div className="mt-6 grid grid-cols-2 gap-3 sm:flex sm:justify-end">
-          <button
+          <motion.button
             type="button"
             disabled={isDeleting}
             onClick={onCancel}
+            {...buttonMotion}
             className="h-10 rounded-lg border border-neutral-200 bg-white px-5 text-sm font-bold text-neutral-900 transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             Cancel
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             disabled={isDeleting}
             onClick={onConfirm}
+            {...buttonMotion}
             className="h-10 rounded-lg bg-neutral-900 px-5 text-sm font-bold text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isDeleting ? "Deleting..." : "Yes, delete"}
-          </button>
+          </motion.button>
         </div>
       </div>
     </div>
