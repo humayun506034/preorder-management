@@ -128,7 +128,7 @@ export function PreorderTable({
 
   return (
     <div className="max-w-full overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]">
-      <table className="w-full min-w-[920px] border-collapse text-left text-sm">
+      <table className="w-full min-w-[820px] table-fixed border-collapse text-left text-sm">
         <thead className="bg-neutral-50 text-[13px] text-neutral-600">
           <tr>
             <th className="w-9 px-3 py-2.5 font-semibold">
@@ -138,13 +138,15 @@ export function PreorderTable({
                 onChange={onSelectAll}
               />
             </th>
-            <th className="px-3 py-2.5 font-semibold">Name</th>
-            <th className="px-3 py-2.5 font-semibold">Products</th>
-            <th className="px-3 py-2.5 font-semibold">Preorder when</th>
-            <th className="px-3 py-2.5 font-semibold">Starts at</th>
-            <th className="px-3 py-2.5 font-semibold">Ends at</th>
-            <th className="px-3 py-2.5 font-semibold">Status</th>
-            <th className="px-3 py-2.5 font-semibold">Actions</th>
+            <th className="w-[18%] px-3 py-2.5 font-semibold">Name</th>
+            <th className="w-[10%] px-3 py-2.5 font-semibold">Products</th>
+            <th className="w-[18%] px-3 py-2.5 font-semibold">
+              Preorder when
+            </th>
+            <th className="w-[18%] px-3 py-2.5 font-semibold">Starts at</th>
+            <th className="w-[18%] px-3 py-2.5 font-semibold">Ends at</th>
+            <th className="w-[9%] px-3 py-2.5 font-semibold">Status</th>
+            <th className="w-[10%] px-3 py-2.5 font-semibold">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-neutral-200 bg-white text-[13.5px] text-neutral-800">
@@ -164,13 +166,13 @@ export function PreorderTable({
                     onChange={(checked) => onSelectOne(item.id, checked)}
                   />
                 </td>
-                <td className="px-3 py-2 font-bold text-neutral-800">
+                <td className="truncate px-3 py-2 font-bold text-neutral-800">
                   {item.name}
                 </td>
                 <td className="px-3 py-2">{item.products}</td>
-                <td className="px-3 py-2">{item.preorderWhen}</td>
-                <td className="px-3 py-2">{formatDate(item.startsAt)}</td>
-                <td className="px-3 py-2">{formatDate(item.endsAt)}</td>
+                <td className="truncate px-3 py-2">{item.preorderWhen}</td>
+                <td className="truncate px-3 py-2">{formatDate(item.startsAt)}</td>
+                <td className="truncate px-3 py-2">{formatDate(item.endsAt)}</td>
                 <td className="px-3 py-2">
                   <StatusSwitch
                     isActive={item.isActive}
@@ -179,7 +181,7 @@ export function PreorderTable({
                   />
                 </td>
                 <td className="px-3 py-2">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <button
                       type="button"
                       aria-label={`Edit ${item.name}`}

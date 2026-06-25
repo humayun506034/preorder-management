@@ -77,14 +77,14 @@ export function PreorderFilters({
   const [isSortOpen, setIsSortOpen] = useState(false);
 
   return (
-    <div className="relative flex min-w-0 items-center justify-between gap-3 border-b border-neutral-200 bg-white px-2 py-2 sm:h-12 sm:px-3 sm:py-0">
+    <div className="relative flex min-w-0 items-center justify-between gap-2 border-b border-neutral-200 bg-white px-2 py-2 sm:h-12 sm:px-3 sm:py-0">
       <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:none] sm:gap-2 [&::-webkit-scrollbar]:hidden">
         {statusOptions.map((option) => (
           <button
             key={option.value}
             type="button"
             onClick={() => onStatusChange(option.value)}
-            className={`h-8 shrink-0 rounded-lg px-3 text-sm font-semibold transition sm:px-4 ${
+            className={`h-8 shrink-0 rounded-lg px-3 text-sm font-semibold leading-none transition sm:px-4 ${
               status === option.value
                 ? "bg-neutral-100 text-neutral-950"
                 : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-950"
@@ -107,7 +107,7 @@ export function PreorderFilters({
         </button>
 
         {isSortOpen ? (
-          <div className="absolute right-0 top-10 z-20 w-44 overflow-hidden rounded-xl border border-neutral-200 bg-white py-2 text-sm text-neutral-700 shadow-lg">
+          <div className="absolute right-0 top-10 z-20 w-44 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-neutral-200 bg-white py-2 text-sm text-neutral-700 shadow-lg">
             <div className="px-3 pb-2 text-sm text-neutral-700">Sort by</div>
             <div className="space-y-1 px-2">
               {sortByOptions

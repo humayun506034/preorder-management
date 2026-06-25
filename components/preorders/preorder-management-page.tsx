@@ -3,6 +3,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
+import { toast } from "sonner";
+import { ConfirmDeleteModal } from "@/components/preorders/confirm-delete-modal";
 import { PreorderFilters } from "@/components/preorders/preorder-filters";
 import { PreorderForm } from "@/components/preorders/preorder-form";
 import { PreorderPagination } from "@/components/preorders/preorder-pagination";
@@ -97,10 +99,11 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedPreorder, setSelectedPreorder] = useState<Preorder | null>(
+    null,
+  );
+  const [preorderToDelete, setPreorderToDelete] = useState<Preorder | null>(
     null,
   );
 
@@ -114,7 +117,6 @@ export default function Home() {
         }
 
         setIsLoading(true);
-        setError(null);
 
         const result = await getPreorders({
           status,
@@ -142,7 +144,7 @@ export default function Home() {
 
         setPreorders([]);
         setMeta(null);
-        setError(message);
+        toast.error(message);
       } finally {
         if (shouldUpdate) {
           setIsLoading(false);
@@ -237,8 +239,6 @@ export default function Home() {
 
     try {
       setUpdatingStatusId(preorder.id);
-      setError(null);
-      setFeedback(null);
 
       const result = await updatePreorder(preorder.id, {
         name: preorder.name,
@@ -276,24 +276,38 @@ export default function Home() {
         });
       }
 
-      setFeedback("Preorder status updated.");
+      toast.success(
+        `Preorder status updated to ${result.data.isActive ? "Active" : "Inactive"}.`,
+      );
     } catch (unknownError) {
       const message = axios.isAxiosError(unknownError)
         ? unknownError.response?.data?.message ??
           "Failed to update preorder status."
         : "Failed to update preorder status.";
 
-      setError(message);
+      toast.error(message);
     } finally {
       setUpdatingStatusId(null);
     }
   };
 
-  const handleDeleteClick = async (preorder: Preorder) => {
+  const handleDeleteClick = (preorder: Preorder) => {
+    setPreorderToDelete(preorder);
+  };
+
+  const handleDeleteCancel = () => {
+    setPreorderToDelete(null);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!preorderToDelete) {
+      return;
+    }
+
+    const preorder = preorderToDelete;
+
     try {
       setDeletingId(preorder.id);
-      setError(null);
-      setFeedback(null);
 
       await deletePreorder(preorder.id);
 
@@ -313,13 +327,14 @@ export default function Home() {
         setMeta(decrementMeta);
       }
 
-      setFeedback("Preorder deleted.");
+      toast.success("Preorder deleted.");
+      setPreorderToDelete(null);
     } catch (unknownError) {
       const message = axios.isAxiosError(unknownError)
         ? unknownError.response?.data?.message ?? "Failed to delete preorder."
         : "Failed to delete preorder.";
 
-      setError(message);
+      toast.error(message);
     } finally {
       setDeletingId(null);
     }
@@ -327,15 +342,12 @@ export default function Home() {
 
   const handleFormCancel = () => {
     setSelectedPreorder(null);
-    setError(null);
     setViewMode("list");
   };
 
   const handleFormSubmit = async (payload: PreorderPayload) => {
     try {
       setIsSubmitting(true);
-      setError(null);
-      setFeedback(null);
 
       if (viewMode === "edit" && selectedPreorder) {
         const result = await updatePreorder(selectedPreorder.id, payload);
@@ -373,7 +385,7 @@ export default function Home() {
           });
         }
 
-        setFeedback("Preorder updated.");
+        toast.success("Preorder updated.");
       } else {
         const result = await createPreorder(payload);
 
@@ -385,7 +397,7 @@ export default function Home() {
           setMeta(incrementMeta);
         }
 
-        setFeedback("Preorder created.");
+        toast.success("Preorder created.");
       }
 
       setSelectedPreorder(null);
@@ -395,7 +407,7 @@ export default function Home() {
         ? unknownError.response?.data?.message ?? "Failed to save preorder."
         : "Failed to save preorder.";
 
-      setError(message);
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -406,7 +418,6 @@ export default function Home() {
       <PreorderForm
         preorder={selectedPreorder ?? undefined}
         isSubmitting={isSubmitting}
-        errorMessage={error}
         onCancel={handleFormCancel}
         onSubmit={handleFormSubmit}
       />
@@ -414,33 +425,21 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen w-full overflow-x-hidden bg-[#f3f3f3] px-3 py-8 text-neutral-900 sm:px-6 sm:py-14 lg:px-8">
-      <div className="mx-auto flex w-full min-w-0 max-w-[950px] flex-col gap-5 sm:gap-6">
-        <div className="flex min-w-0 flex-col gap-4 border-t border-neutral-200 pt-5 sm:flex-row sm:items-center sm:justify-between sm:pt-6">
-          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
+    <main className="min-h-screen w-full overflow-x-hidden bg-[#f3f3f3] px-3 py-6 text-neutral-900 sm:px-5 sm:py-10 lg:px-8 lg:py-14">
+      <div className="mx-auto flex w-full min-w-0 max-w-[min(950px,100%)] flex-col gap-4 sm:gap-6">
+        <div className="flex min-w-0 flex-col gap-3 border-t border-neutral-200 pt-5 sm:flex-row sm:items-center sm:justify-between sm:pt-6">
+          <h1 className="min-w-0 text-2xl font-bold tracking-tight text-neutral-900">
             Preorders
           </h1>
 
           <button
             type="button"
             onClick={handleCreateClick}
-            className="h-8 w-fit rounded-lg border border-neutral-950 bg-neutral-900 px-4 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] transition hover:bg-neutral-800"
+            className="h-8 w-fit shrink-0 rounded-lg border border-neutral-950 bg-neutral-900 px-4 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] transition hover:bg-neutral-800"
           >
             Create Preorder
           </button>
         </div>
-
-        {error ? (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-            {error}
-          </div>
-        ) : null}
-
-        {feedback ? (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-            {feedback}
-          </div>
-        ) : null}
 
         <section className="min-w-0 overflow-hidden rounded-xl border border-neutral-300 bg-white shadow-sm">
           <PreorderFilters
@@ -465,6 +464,15 @@ export default function Home() {
           />
           <PreorderPagination meta={meta} onPageChange={setPage} />
         </section>
+
+        {preorderToDelete ? (
+          <ConfirmDeleteModal
+            preorder={preorderToDelete}
+            isDeleting={deletingId === preorderToDelete.id}
+            onCancel={handleDeleteCancel}
+            onConfirm={handleDeleteConfirm}
+          />
+        ) : null}
       </div>
     </main>
   );

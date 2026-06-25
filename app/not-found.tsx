@@ -10,18 +10,12 @@ export default function NotFound() {
         <h1 className="mt-4 text-2xl font-bold tracking-tight text-neutral-950 sm:text-4xl">
           Page not found
         </h1>
-        <p className="mx-auto mt-3 max-w-[420px] text-sm leading-6 text-slate-500">
+        <p className="mx-auto mt-3 max-w-105 text-sm leading-6 text-slate-500">
           The page you are looking for does not exist or may have been moved.
           Return to the preorder dashboard to continue.
         </p>
 
         <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
-          <Link
-            href="/"
-            className="inline-flex h-10 items-center justify-center rounded-lg bg-neutral-900 px-5 text-sm font-bold text-white transition hover:bg-neutral-800"
-          >
-            Back to dashboard
-          </Link>
 
           <Link
             href="/"

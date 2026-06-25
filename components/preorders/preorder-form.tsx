@@ -6,7 +6,6 @@ import type { Preorder, PreorderPayload } from "@/types/preorder";
 type PreorderFormProps = {
   preorder?: Preorder;
   isSubmitting: boolean;
-  errorMessage?: string | null;
   onCancel: () => void;
   onSubmit: (payload: PreorderPayload) => Promise<void>;
 };
@@ -39,7 +38,6 @@ const toIsoOrNull = (value: string) => {
 export function PreorderForm({
   preorder,
   isSubmitting,
-  errorMessage,
   onCancel,
   onSubmit,
 }: PreorderFormProps) {
@@ -76,10 +74,10 @@ export function PreorderForm({
   };
 
   return (
-    <main className="min-h-screen w-full overflow-x-hidden bg-[#f3f3f3] px-3 py-5 text-neutral-900 sm:px-6 sm:py-8 lg:px-8">
+    <main className="min-h-screen w-full overflow-x-hidden bg-[#f3f3f3] px-3 py-5 text-neutral-900 sm:px-5 sm:py-8 lg:px-8">
       <form
         onSubmit={handleSubmit}
-        className="mx-auto flex w-full min-w-0 max-w-[912px] flex-col gap-5 sm:gap-8"
+        className="mx-auto flex w-full min-w-0 max-w-[min(912px,100%)] flex-col gap-5 sm:gap-8"
       >
         <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <button
@@ -91,7 +89,7 @@ export function PreorderForm({
             Back
           </button>
 
-          <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center">
+          <div className="grid grid-cols-1 gap-3 min-[380px]:grid-cols-2 sm:flex sm:items-center">
             <button
               type="button"
               onClick={onCancel}
@@ -108,12 +106,6 @@ export function PreorderForm({
             </button>
           </div>
         </div>
-
-        {errorMessage ? (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-            {errorMessage}
-          </div>
-        ) : null}
 
         <section className="min-w-0 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm">
           <div className="border-b border-neutral-200 px-4 py-4 sm:px-6 sm:py-5">
@@ -219,7 +211,7 @@ export function PreorderForm({
             </FormRow>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 border-t border-neutral-200 bg-neutral-50 px-4 py-4 sm:flex sm:justify-end sm:px-6">
+          <div className="grid grid-cols-1 gap-3 border-t border-neutral-200 bg-neutral-50 px-4 py-4 min-[380px]:grid-cols-2 sm:flex sm:justify-end sm:px-6">
             <button
               type="button"
               onClick={onCancel}
@@ -250,13 +242,13 @@ type FormRowProps = {
 
 function FormRow({ title, description, required, children }: FormRowProps) {
   return (
-    <div className="grid min-w-0 gap-4 py-5 sm:py-6 lg:grid-cols-[220px_minmax(0,1fr)]">
+    <div className="grid min-w-0 gap-4 py-5 sm:py-6 min-[900px]:grid-cols-[220px_minmax(0,1fr)]">
       <div className="min-w-0">
         <label className="text-sm font-bold text-neutral-950">
           {title}
           {required ? <span className="text-red-600"> *</span> : null}
         </label>
-        <p className="mt-1 max-w-full text-sm leading-5 text-slate-500 lg:max-w-[190px]">
+        <p className="mt-1 max-w-full text-sm leading-5 text-slate-500 min-[900px]:max-w-[190px]">
           {description}
         </p>
       </div>

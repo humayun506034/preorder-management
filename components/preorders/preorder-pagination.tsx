@@ -12,7 +12,7 @@ export function PreorderPagination({
   const currentPage = meta?.page ?? 1;
 
   return (
-    <div className="flex min-w-0 items-center justify-center gap-2 border-t border-neutral-200 bg-neutral-50 px-2 py-2 sm:h-10 sm:gap-3 sm:py-0">
+    <div className="flex min-w-0 flex-wrap items-center justify-center gap-2 border-t border-neutral-200 bg-neutral-50 px-2 py-2 sm:min-h-10 sm:gap-3">
       <button
         type="button"
         aria-label="Previous page"
