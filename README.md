@@ -114,8 +114,10 @@ yarn start
 
 Runs the production build locally.
 
+&nbsp;
 
 Applies the Turso/libSQL schema using `DATABASE_URL` and `TURSO_AUTH_TOKEN`.
+
 
 
 
@@ -468,9 +470,3 @@ PreorderForm
   -> Turso SQLite database
 ```
 
-## Notes
-
-- `.env.local` and `.env` are ignored by Git.
-- Never commit `TURSO_AUTH_TOKEN`.
-- Browser code does not need `NEXT_PUBLIC_API_BASE_URL` because API routes live inside the same Next.js app.
-- Prisma Client is generated automatically on `postinstall`.
