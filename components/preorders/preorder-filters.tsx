@@ -8,12 +8,12 @@ import type {
   PreorderStatusFilter,
   SortOrder,
   SortOrderFilter,
-} from "@/types/preorder";
+} from "@/features/preorders/preorder.types";
 import {
   sortByOptions,
   sortOrderOptions,
   statusOptions,
-} from "@/lib/preorder-options";
+} from "@/features/preorders/preorder-options";
 
 type PreorderFiltersProps = {
   status: PreorderStatusFilter;

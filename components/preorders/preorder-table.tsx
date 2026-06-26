@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import type { Preorder } from "@/types/preorder";
+import type { Preorder } from "@/features/preorders/preorder.types";
 
 type PreorderTableProps = {
   preorders: Preorder[];

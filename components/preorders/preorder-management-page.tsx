@@ -2,7 +2,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import axios from "axios";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { ConfirmDeleteModal } from "@/components/preorders/confirm-delete-modal";
@@ -10,13 +9,13 @@ import { PreorderFilters } from "@/components/preorders/preorder-filters";
 import { PreorderForm } from "@/components/preorders/preorder-form";
 import { PreorderPagination } from "@/components/preorders/preorder-pagination";
 import { PreorderTable } from "@/components/preorders/preorder-table";
-import { defaultFilters } from "@/lib/preorder-options";
+import { defaultFilters } from "@/features/preorders/preorder-options";
 import {
   createPreorder,
   deletePreorder,
   getPreorders,
   updatePreorder,
-} from "@/lib/preorders";
+} from "@/features/preorders/client/preorder-api";
 import type {
   Preorder,
   PreorderMeta,
@@ -24,7 +23,7 @@ import type {
   PreorderSortByFilter,
   PreorderStatusFilter,
   SortOrderFilter,
-} from "@/types/preorder";
+} from "@/features/preorders/preorder.types";
 
 type ViewMode = "list" | "create" | "edit";
 
@@ -33,6 +32,9 @@ const buttonMotion = {
   whileTap: { scale: 0.96 },
   transition: { type: "spring", stiffness: 500, damping: 30 },
 } as const;
+
+const getErrorMessage = (error: unknown, fallback: string) =>
+  error instanceof Error ? error.message : fallback;
 
 const matchesStatusFilter = (
   preorder: Preorder,
@@ -145,13 +147,9 @@ export default function Home() {
           return;
         }
 
-        const message = axios.isAxiosError(unknownError)
-          ? unknownError.response?.data?.message ?? "Failed to fetch preorders."
-          : "Failed to fetch preorders.";
-
         setPreorders([]);
         setMeta(null);
-        toast.error(message);
+        toast.error(getErrorMessage(unknownError, "Failed to fetch preorders."));
       } finally {
         if (shouldUpdate) {
           setIsLoading(false);
@@ -287,12 +285,9 @@ export default function Home() {
         `Preorder status updated to ${result.data.isActive ? "Active" : "Inactive"}.`,
       );
     } catch (unknownError) {
-      const message = axios.isAxiosError(unknownError)
-        ? unknownError.response?.data?.message ??
-          "Failed to update preorder status."
-        : "Failed to update preorder status.";
-
-      toast.error(message);
+      toast.error(
+        getErrorMessage(unknownError, "Failed to update preorder status."),
+      );
     } finally {
       setUpdatingStatusId(null);
     }
@@ -337,11 +332,7 @@ export default function Home() {
       toast.success("Preorder deleted.");
       setPreorderToDelete(null);
     } catch (unknownError) {
-      const message = axios.isAxiosError(unknownError)
-        ? unknownError.response?.data?.message ?? "Failed to delete preorder."
-        : "Failed to delete preorder.";
-
-      toast.error(message);
+      toast.error(getErrorMessage(unknownError, "Failed to delete preorder."));
     } finally {
       setDeletingId(null);
     }
@@ -410,11 +401,7 @@ export default function Home() {
       setSelectedPreorder(null);
       setViewMode("list");
     } catch (unknownError) {
-      const message = axios.isAxiosError(unknownError)
-        ? unknownError.response?.data?.message ?? "Failed to save preorder."
-        : "Failed to save preorder.";
-
-      toast.error(message);
+      toast.error(getErrorMessage(unknownError, "Failed to save preorder."));
     } finally {
       setIsSubmitting(false);
     }

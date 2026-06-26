@@ -3,7 +3,7 @@ import type {
   PreorderSortByFilter,
   PreorderStatusFilter,
   SortOrderFilter,
-} from "@/types/preorder";
+} from "@/features/preorders/preorder.types";
 
 type Option<TValue extends string | number> = {
   label: string;

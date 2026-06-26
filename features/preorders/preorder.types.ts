@@ -36,12 +36,19 @@ export type PreorderMeta = {
   hasPreviousPage: boolean;
 };
 
-export type PreorderResponse = {
+export type PreorderListResponse = {
   success: boolean;
   statusCode: number;
   message: string;
   data: Preorder[];
   meta: PreorderMeta;
+};
+
+export type PreorderMutationResponse = {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  data: Preorder;
 };
 
 export type PreorderPayload = {

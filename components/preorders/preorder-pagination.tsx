@@ -1,4 +1,4 @@
-import type { PreorderMeta } from "@/types/preorder";
+import type { PreorderMeta } from "@/features/preorders/preorder.types";
 
 type PreorderPaginationProps = {
   meta: PreorderMeta | null;

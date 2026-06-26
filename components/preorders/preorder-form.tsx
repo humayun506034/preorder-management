@@ -1,10 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FormEvent, ReactNode, useMemo, useState } from "react";
+import { FormEvent, ReactNode, useState } from "react";
 import { toast } from "sonner";
 import { DateTimePicker } from "@/components/preorders/date-time-picker";
-import type { Preorder, PreorderPayload } from "@/types/preorder";
+import type {
+  Preorder,
+  PreorderPayload,
+} from "@/features/preorders/preorder.types";
 
 type PreorderFormProps = {
   preorder?: Preorder;
@@ -50,24 +53,18 @@ export function PreorderForm({
   onCancel,
   onSubmit,
 }: PreorderFormProps) {
-  const initialValues = useMemo(
-    () => ({
-      name: preorder?.name ?? "",
-      products: preorder?.products ?? 1,
-      preorderWhen: preorder?.preorderWhen ?? "regardless-of-stock",
-      startsAt: toDateTimeInputValue(preorder?.startsAt),
-      endsAt: toDateTimeInputValue(preorder?.endsAt),
-      isActive: preorder?.isActive ?? true,
-    }),
-    [preorder],
+  const [name, setName] = useState(() => preorder?.name ?? "");
+  const [products, setProducts] = useState(() => preorder?.products ?? 1);
+  const [preorderWhen, setPreorderWhen] = useState(
+    () => preorder?.preorderWhen ?? "regardless-of-stock",
   );
-
-  const [name, setName] = useState(initialValues.name);
-  const [products, setProducts] = useState(initialValues.products);
-  const [preorderWhen, setPreorderWhen] = useState(initialValues.preorderWhen);
-  const [startsAt, setStartsAt] = useState(initialValues.startsAt);
-  const [endsAt, setEndsAt] = useState(initialValues.endsAt);
-  const [isActive, setIsActive] = useState(initialValues.isActive);
+  const [startsAt, setStartsAt] = useState(() =>
+    toDateTimeInputValue(preorder?.startsAt),
+  );
+  const [endsAt, setEndsAt] = useState(() =>
+    toDateTimeInputValue(preorder?.endsAt),
+  );
+  const [isActive, setIsActive] = useState(() => preorder?.isActive ?? true);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -144,7 +141,7 @@ export function PreorderForm({
                 required
                 value={name}
                 onChange={(event) => setName(event.target.value)}
-                className="h-10 w-full min-w-0 max-w-[420px] rounded-lg border border-neutral-300 px-3 text-sm outline-none transition focus:border-neutral-500"
+                className="h-10 w-full min-w-0 max-w-105 rounded-lg border border-neutral-300 px-3 text-sm outline-none transition focus:border-neutral-500"
               />
             </FormRow>
 
@@ -172,7 +169,7 @@ export function PreorderForm({
               <select
                 value={preorderWhen}
                 onChange={(event) => setPreorderWhen(event.target.value)}
-                className="h-10 w-full min-w-0 max-w-[420px] rounded-lg border border-neutral-300 bg-white px-3 text-sm outline-none transition focus:border-neutral-500"
+                className="h-10 w-full min-w-0 max-w-105 rounded-lg border border-neutral-300 bg-white px-3 text-sm outline-none transition focus:border-neutral-500"
               >
                 {preorderWhenOptions.map((option) => (
                   <option key={option} value={option}>

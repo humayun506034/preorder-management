@@ -1,38 +1,52 @@
 # Preorder Management
 
-A responsive preorder management dashboard built with Next.js, TypeScript, Tailwind CSS, and Axios. It connects to a backend API for listing, filtering, sorting, paginating, creating, updating, status toggling, and deleting preorder records.
+A responsive preorder management dashboard built with Next.js, TypeScript, Tailwind CSS, Prisma, and SQLite through Turso/libSQL. The backend lives inside the same Next.js app through App Router API routes.
 
-Live site: https://preorder-management-01.vercel.app
-
-## Features
-
-- Preorder list with backend-driven filtering, sorting, and pagination
-- Status filters for All, Active, and Inactive preorders
-- Sort controls for name, created date, start date, and end date
-- Row selection and select-all checkbox support
-- Create preorder form with validation
-- Update preorder form with pre-filled values
-- Active/inactive status update directly from the table
-- Delete confirmation modal before removing a preorder
-- Shadcn-style calendar popover for date and time selection
-- Toast feedback for create, update, delete, and status changes
-- Fully responsive layout with horizontal table scrolling on small screens
-- Custom not-found page
+Live demo: https://preorder-management-11.vercel.app
 
 ## Tech Stack
 
 - Next.js 16
 - React 19
 - TypeScript
+- Prisma 7
+- Turso/libSQL SQLite
 - Tailwind CSS 4
-- Axios
 - Sonner
 - Framer Motion
 - Radix UI Popover
 - React DayPicker
 - date-fns
 
-## Getting Started
+## Features
+
+- List, create, update, and delete preorders
+- Backend-driven filtering, sorting, and pagination
+- Active/inactive status toggle
+- Seed endpoint for sample preorder data
+- Turso/libSQL database connection
+- Native `fetch` based frontend API layer
+- Responsive table and form UI
+
+## Environment
+
+Create `.env.local` in the project root:
+
+```env
+DATABASE_URL="libsql://your-database.turso.io"
+TURSO_AUTH_TOKEN="your_turso_auth_token"
+```
+
+For deployment, add the same variables to your hosting provider.
+
+## Setup
+
+Clone the repository:
+
+```bash
+git clone https://github.com/humayun506034/preorder-management.git
+cd preorder-management
+```
 
 Install dependencies:
 
@@ -40,21 +54,47 @@ Install dependencies:
 yarn install
 ```
 
-Create a `.env.local` file in the project root:
+Generate Prisma Client:
 
-```env
-NEXT_PUBLIC_BASE_URL="https://preorder-management-backend.onrender.com"
+```bash
+yarn prisma generate
 ```
 
-Start the development server:
+Apply the SQLite schema to Turso without Turso CLI login:
+
+```bash
+yarn db:apply
+```
+
+Start development server:
 
 ```bash
 yarn dev
 ```
 
-Open http://localhost:3000 in your browser.
+Open:
 
-## Available Scripts
+```txt
+http://localhost:3000
+```
+
+## Database Notes
+
+This project uses Turso/libSQL with Prisma adapter. `yarn prisma migrate dev` does not work with the remote `libsql://` URL, so schema SQL is applied with:
+
+```bash
+yarn db:apply
+```
+
+The SQL file is:
+
+```txt
+prisma/migrations/20260625172631_modify/migration.sql
+```
+
+The app also calls `ensureDatabase()` before DB operations, which runs `CREATE TABLE IF NOT EXISTS` as a safety check.
+
+## Scripts
 
 ```bash
 yarn dev
@@ -74,43 +114,306 @@ yarn start
 
 Runs the production build locally.
 
+
+Applies the Turso/libSQL schema using `DATABASE_URL` and `TURSO_AUTH_TOKEN`.
+
+
+
+
 ```bash
-yarn lint
+yarn db:apply
 ```
 
-Runs ESLint.
+```bash
+yarn prisma generate
+```
 
-## API Integration
+Generates Prisma Client.
 
-The app uses `NEXT_PUBLIC_BASE_URL` as the API base URL. API requests are handled through `lib/api-client.ts` and `lib/preorders.ts`.
+## API Routes
 
-Expected endpoints:
+Base URL locally:
+
+```txt
+http://localhost:3000
+```
+
+Endpoints:
 
 ```http
-GET /preorder
-POST /preorder
-PATCH /preorder/{id}
-DELETE /preorder/{id}
+GET /api/preorder
+POST /api/preorder
+GET /api/preorder/{id}
+PATCH /api/preorder/{id}
+DELETE /api/preorder/{id}
+POST /api/preorder/seed
+
 ```
 
-List query parameters:
+### List Preorders
 
 ```http
-/preorder?search=summer&status=active&sortBy=createdAt&sortOrder=desc&page=1&limit=10
+GET /api/preorder
 ```
 
-Supported values:
+Query parameters:
+
+```txt
+search=summer
+status=active
+sortBy=createdAt
+sortOrder=desc
+page=1
+limit=10
+```
+
+Example:
+
+```bash
+curl "http://localhost:3000/api/preorder?status=all&sortBy=createdAt&sortOrder=desc&page=1&limit=10"
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Preorder list fetched successfully.",
+  "data": [
+    {
+      "id": "9f25f81a-1d83-4a7a-94ac-7f41fe8c011a",
+      "name": "Summer Essentials Drop",
+      "products": 4,
+      "preorderWhen": "regardless-of-stock",
+      "startsAt": "2026-06-25T09:00:00.000Z",
+      "endsAt": "2026-07-02T23:59:00.000Z",
+      "isActive": true,
+      "createdAt": "2026-06-26T04:00:00.000Z",
+      "updatedAt": "2026-06-26T04:00:00.000Z"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "itemCount": 1,
+    "totalItems": 1,
+    "totalPages": 1,
+    "from": 1,
+    "to": 1,
+    "hasNextPage": false,
+    "hasPreviousPage": false
+  }
+}
+```
+
+### Create Preorder
+
+```http
+POST /api/preorder
+```
+
+Request:
+
+```bash
+curl -X POST http://localhost:3000/api/preorder \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Summer Essentials Drop",
+    "products": 4,
+    "preorderWhen": "regardless-of-stock",
+    "startsAt": "2026-06-25T09:00:00.000Z",
+    "endsAt": "2026-07-02T23:59:00.000Z",
+    "isActive": true
+  }'
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "statusCode": 201,
+  "message": "Preorder created successfully.",
+  "data": {
+    "id": "9f25f81a-1d83-4a7a-94ac-7f41fe8c011a",
+    "name": "Summer Essentials Drop",
+    "products": 4,
+    "preorderWhen": "regardless-of-stock",
+    "startsAt": "2026-06-25T09:00:00.000Z",
+    "endsAt": "2026-07-02T23:59:00.000Z",
+    "isActive": true,
+    "createdAt": "2026-06-26T04:00:00.000Z",
+    "updatedAt": "2026-06-26T04:00:00.000Z"
+  }
+}
+```
+
+### Get One Preorder
+
+```http
+GET /api/preorder/{id}
+```
+
+Example:
+
+```bash
+curl http://localhost:3000/api/preorder/9f25f81a-1d83-4a7a-94ac-7f41fe8c011a
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Preorder fetched successfully.",
+  "data": {
+    "id": "9f25f81a-1d83-4a7a-94ac-7f41fe8c011a",
+    "name": "Summer Essentials Drop",
+    "products": 4,
+    "preorderWhen": "regardless-of-stock",
+    "startsAt": "2026-06-25T09:00:00.000Z",
+    "endsAt": "2026-07-02T23:59:00.000Z",
+    "isActive": true,
+    "createdAt": "2026-06-26T04:00:00.000Z",
+    "updatedAt": "2026-06-26T04:00:00.000Z"
+  }
+}
+```
+
+### Update Preorder
+
+```http
+PATCH /api/preorder/{id}
+```
+
+Request:
+
+```bash
+curl -X PATCH http://localhost:3000/api/preorder/9f25f81a-1d83-4a7a-94ac-7f41fe8c011a \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Updated Summer Drop",
+    "products": 5,
+    "preorderWhen": "out-of-stock",
+    "startsAt": "2026-06-25T09:00:00.000Z",
+    "endsAt": null,
+    "isActive": false
+  }'
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Preorder updated successfully.",
+  "data": {
+    "id": "9f25f81a-1d83-4a7a-94ac-7f41fe8c011a",
+    "name": "Updated Summer Drop",
+    "products": 5,
+    "preorderWhen": "out-of-stock",
+    "startsAt": "2026-06-25T09:00:00.000Z",
+    "endsAt": null,
+    "isActive": false,
+    "createdAt": "2026-06-26T04:00:00.000Z",
+    "updatedAt": "2026-06-26T04:05:00.000Z"
+  }
+}
+```
+
+### Delete Preorder
+
+```http
+DELETE /api/preorder/{id}
+```
+
+Example:
+
+```bash
+curl -X DELETE http://localhost:3000/api/preorder/9f25f81a-1d83-4a7a-94ac-7f41fe8c011a
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Preorder deleted successfully.",
+  "data": {
+    "id": "9f25f81a-1d83-4a7a-94ac-7f41fe8c011a",
+    "name": "Updated Summer Drop",
+    "products": 5,
+    "preorderWhen": "out-of-stock",
+    "startsAt": "2026-06-25T09:00:00.000Z",
+    "endsAt": null,
+    "isActive": false,
+    "createdAt": "2026-06-26T04:00:00.000Z",
+    "updatedAt": "2026-06-26T04:05:00.000Z"
+  }
+}
+```
+
+### Seed Preorders
+
+```http
+POST /api/preorder/seed
+```
+
+Example:
+
+```bash
+curl -X POST http://localhost:3000/api/preorder/seed
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "statusCode": 201,
+  "message": "Sample preorder data seeded successfully.",
+  "data": {
+    "inserted": 15
+  }
+}
+```
+
+### Error Response
+
+Example:
+
+```json
+{
+  "success": false,
+  "statusCode": 404,
+  "message": "Preorder not found.",
+  "data": null
+}
+```
+
+## Supported Query Values
 
 - `status`: `all`, `active`, `inactive`
 - `sortBy`: `name`, `createdAt`, `startsAt`, `endsAt`
 - `sortOrder`: `asc`, `desc`
-- `page`: number
-- `limit`: number
+- `page`: positive number
+- `limit`: positive number, max `100`
 
 ## Project Structure
 
 ```text
 app/
+  api/
+    preorder/
+      route.ts
+      seed/
+        route.ts
+      [id]/
+        route.ts
   layout.tsx
   page.tsx
   not-found.tsx
@@ -126,16 +429,48 @@ components/
   ui/
     calendar.tsx
     popover.tsx
+features/
+  preorders/
+    client/
+      preorder-api.ts
+    server/
+      preorder.constants.ts
+      preorder.errors.ts
+      preorder.mapper.ts
+      preorder.query.ts
+      preorder.service.ts
+      preorder.validation.ts
+    preorder-options.ts
+    preorder.types.ts
 lib/
-  api-client.ts
-  preorder-options.ts
-  preorders.ts
-types/
-  preorder.ts
+  generated/
+    prisma/
+  server/
+    api-response.ts
+    prisma.ts
+prisma/
+  migrations/
+  seed-data/
+  schema.prisma
+scripts/
+  apply-sqlite-schema.mjs
+```
+
+## Data Flow
+
+```txt
+PreorderForm
+  -> preorder-management-page.tsx
+  -> features/preorders/client/preorder-api.ts
+  -> app/api/preorder route
+  -> features/preorders/server/preorder.service.ts
+  -> lib/server/prisma.ts
+  -> Turso SQLite database
 ```
 
 ## Notes
 
-- Filtering, sorting, and pagination are expected to be handled by the backend.
-- The frontend updates the current list after mutations without a full page refresh.
-- `.env.local` is ignored by Git, so each environment needs its own API base URL.
+- `.env.local` and `.env` are ignored by Git.
+- Never commit `TURSO_AUTH_TOKEN`.
+- Browser code does not need `NEXT_PUBLIC_API_BASE_URL` because API routes live inside the same Next.js app.
+- Prisma Client is generated automatically on `postinstall`.
